@@ -4,10 +4,21 @@ const express = require("express");
 
 const app = express();
 
-app.use("/get", (req, res) => {
-  res.send("Hello from the server!");
+//get() method to match only GET method api call to 'user'
+app.get("/user", (req, res) => {
+  res.send({ firstName: "Krishnavi", lastName: "Dixit" });
 });
 
+app.post("/user", (req, res) => {
+  //Store the data into DB
+  res.send("Successfully saved data!");
+});
+
+app.delete("/user", (req, res) => {
+  res.send("delete data");
+});
+
+// use() method will match the all HTTP method API calls
 app.use("/hello", (req, res) => {
   res.send("Hello hello hello from the server radha rani!");
 });
