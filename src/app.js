@@ -39,6 +39,38 @@ app.use("/hello", (req, res) => {
   res.send("Hello hello hello from the server radha rani!");
 });
 
+app.use("/user1", (req, res) => {
+  //If you are not sending any response from the server then after sometime timeout will happen
+});
+
+// we can call multiple route handler and for next route handler we have one another parameter next to pass
+app.use(
+  "/user2",
+  (req, res, next) => {
+    // res.send("response1");
+    console.log("response 1!");
+    next();
+  },
+  [
+    (req, res, next) => {
+      console.log("response 2!");
+      next();
+    },
+    (req, res, next) => {
+      console.log("response 3!");
+      next();
+    },
+  ],
+  (req, res, next) => {
+    console.log("response 4!");
+    // res.send("response4");
+    next();
+  },
+  (req, res, next) => {
+    console.log("response 5!");
+    res.send("response5");
+  },
+);
 app.listen(3000, () => {
   console.log("server is successfully listening on port 3000");
 });
