@@ -3,14 +3,13 @@
 const express = require("express");
 const { adminAuth } = require("./middlewares/auth");
 const { connectDB } = require("./config/database.js");
-require("./config/database.js");
 const app = express();
 const User = require("./model/user");
-const { validateSignUpData } = require("../src/utils/validations.js");
-const bcrypt = require("bcrypt");
 const cookieParser = require("cookie-parser");
-const jwt = require("jsonwebtoken");
-const { userAuth } = require("../src/middlewares/auth.js");
+const authRouter = require("./routes/auth.js");
+const profileRouter = require("./routes/profile.js");
+const requestRouter = require("./routes/request.js");
+
 // if we will create url like thie ab?c then in this case "b" is optional if wew pass in url /ac or /abc in both scenerio it will work
 // ab+c then "b" can add as many of times like "abbbc" will work
 // ab*cd this means you can add any text between ab and cd but pattern should be match starting with ab and end with cd.
@@ -91,79 +90,9 @@ const { userAuth } = require("../src/middlewares/auth.js");
 app.use(express.json());
 app.use(cookieParser());
 
-//Signup API
-app.post("/signup", async (req, res) => {
-  try {
-    //Validate Data
-    validateSignUpData(req);
-    //Encrypt the password
-    const { firstName, lastName, emailId, password } = req.body;
-    const hashPassword = await bcrypt.hash(password, 10);
-    console.log(hashPassword, "hash password");
-
-    //Creating a new instance of user modal
-    const user = new User({
-      firstName,
-      lastName,
-      emailId,
-      password: hashPassword,
-    });
-
-    await user.save();
-    res.send("saved successfully!");
-  } catch (err) {
-    res.status(400).send("Error:" + err.message);
-  }
-});
-
-//Login User API
-
-app.use("/login", async (req, res) => {
-  try {
-    const { emailId, password } = req.body;
-    const user = await User.findOne({ emailId: emailId });
-    if (!user) {
-      throw new Error("Invalid credentials!");
-    }
-
-    const isPasswordValid = await user.validatePassword(password);
-
-    if (isPasswordValid) {
-      //Create a JWT token
-
-      const token = await user.getJWT();
-
-      //Add the token to cookie and send back to the user
-      res.cookie("token", token, {
-        expires: new Date(Date.now() + 60 * 60 * 1000),
-      });
-      res.send("Login successfully!");
-    } else {
-      throw new Error("Invalid credentials!!");
-    }
-  } catch (err) {
-    res.status(400).send("Error:" + err.message);
-  }
-});
-
-app.get("/profile", userAuth, async (req, res) => {
-  try {
-    const user = req.user;
-    res.send(user);
-  } catch (err) {
-    res.status(400).send("Error:" + err.message);
-  }
-});
-
-app.post("/sendUserConnection", userAuth, async (req, res) => {
-  try {
-    const user = req.user;
-    res.send(user.firstName);
-  } catch (err) {
-    res.status(400).send("Error:" + err.message);
-  }
-});
-
+app.use("/", authRouter);
+app.use("/", profileRouter);
+app.use("/", requestRouter);
 //Get  users by emailId
 
 app.get("/user", async (req, res) => {
