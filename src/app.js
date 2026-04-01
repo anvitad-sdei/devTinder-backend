@@ -9,6 +9,7 @@ const cookieParser = require("cookie-parser");
 const authRouter = require("./routes/auth.js");
 const profileRouter = require("./routes/profile.js");
 const requestRouter = require("./routes/request.js");
+const userRouter = require("./routes/user.js");
 
 // if we will create url like thie ab?c then in this case "b" is optional if wew pass in url /ac or /abc in both scenerio it will work
 // ab+c then "b" can add as many of times like "abbbc" will work
@@ -93,6 +94,7 @@ app.use(cookieParser());
 app.use("/", authRouter);
 app.use("/", profileRouter);
 app.use("/", requestRouter);
+app.use("/", userRouter);
 //Get  users by emailId
 
 app.get("/user", async (req, res) => {
